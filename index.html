@@ -78,27 +78,37 @@
     /* === TARJETAS DE JUGADORES - FONDO BLANCO === */
       /* === TARJETAS DE JUGADORES - VERSIÓN PC MEJORADA === */
         /* === TARJETAS PC - NÚMEROS GRANDES Y DESORDENADOS === */
+     /* === TARJETAS PC - NÚMEROS GIGANTES === */
     .p-card { 
       background: #ffffff; 
       border: 2px solid #3d3d6e;
       border-radius: 10px; 
-      padding: 8px 6px; 
+      padding: 6px 5px; 
       display: flex; 
       flex-direction: column; 
       align-items: center; 
-      gap: 6px; 
+      gap: 4px; 
       transition: all 0.3s; 
       position: relative;
-      min-height: 110px; /* Altura fija para que no crezcan */
+      height: 110px; /* Altura fija */
+      overflow: hidden;
     }
     
-    .p-card.winner { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); animation: winPulse 1s infinite; }
-    .p-card.cand { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-    .p-card.near-win { border-color: #ff6b6b; box-shadow: 0 0 15px rgba(255,107,107,0.2); }
+    .p-card.winner { border-color: #ffd700; box-shadow: 0 0 25px rgba(255,215,0,0.4); animation: winPulse 1s infinite; }
+    .p-card.cand { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+    .p-card.near-win { border-color: #ff6b6b; box-shadow: 0 0 15px rgba(255,107,107,0.3); }
 
-    .p-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    /* NOMBRE ARRIBA CON BARRA DE PROGRESO AL LADO */
+    .p-header { 
+      width: 100%; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #e0e0e0;
+    }
     .p-name { 
-      font-size: 0.75rem; 
+      font-size: 0.7rem; 
       font-weight: 800; 
       color: #0a0a1a; 
       flex: 1; 
@@ -106,42 +116,67 @@
       overflow: hidden; 
       text-overflow: ellipsis; 
     }
-    .p-crown { font-size: 0.8rem; margin-left: 3px; }
-    .p-del { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 0 3px; opacity: 0.5; }
+    .p-crown { font-size: 0.75rem; margin-left: 2px; }
+    .p-del { background: none; border: none; cursor: pointer; font-size: 0.7rem; padding: 0 2px; opacity: 0.5; }
     
-    /* === NÚMEROS EN GRID (DESORDENADOS PERO ORDENADOS) === */
+    /* BARRA DE PROGRESO PEQUEÑA AL LADO DEL NOMBRE */
+    .p-progress-mini {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.5rem;
+      color: #666;
+      font-weight: 600;
+    }
+    .p-bar-mini {
+      width: 30px;
+      height: 3px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .p-bar-mini-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+      border-radius: 2px;
+      transition: width 0.4s;
+    }
+    
+    /* NÚMEROS GIGANTES OCUPANDO TODO EL ESPACIO */
     .p-nums { 
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 columnas */
-      grid-template-rows: repeat(2, 1fr);    /* 2 filas */
-      gap: 4px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 5px;
       width: 100%;
       justify-items: center;
       align-items: center;
+      flex: 1; /* Ocupa todo el espacio restante */
     }
     
     .p-num { 
-      width: 32px;   /* Números más grandes */
-      height: 32px; 
+      width: 36px;   /* NÚMEROS AÚN MÁS GRANDES */
+      height: 36px; 
       border-radius: 50%; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
-      font-size: 0.85rem; /* Letra más grande */
-      font-weight: 800;
+      font-size: 0.95rem; /* LETRA GIGANTE */
+      font-weight: 900;
       background: #f0f0f5; 
       color: #000; 
       border: 2px solid #2d2d5e; 
-      transition: all 0.3s; 
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     
     .p-num.matched { 
       background: linear-gradient(135deg, #00d4ff, #00a8cc); 
       color: white; 
       border-color: transparent; 
-      box-shadow: 0 0 8px rgba(0,212,255,0.6); 
-      transform: scale(1.15);
-      font-size: 0.95rem;
+      box-shadow: 0 0 10px rgba(0,212,255,0.7); 
+      transform: scale(1.2);
+      font-size: 1.05rem;
     }
     
     .p-progress { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -460,16 +495,16 @@
         else if(p.ca) cardClass += ' cand';
         else if(p.mt >= 4) cardClass += ' near-win';
         c.className = cardClass;
-        c.innerHTML = `
+                c.innerHTML = `
           <div class="p-header">
             <span class="p-name">${p.name}${p.ca?'<span class="p-crown">👑</span>':''}</span>
-            ${!G.gameStarted?`<button class="p-del" data-i="${i}">🗑️</button>`:''}
+            <div class="p-progress-mini">
+              <span>${p.mt}/5</span>
+              <div class="p-bar-mini"><div class="p-bar-mini-fill" style="width:${(p.mt/CFG.N)*100}%"></div></div>
+            </div>
+            ${!G.gameStarted?`<button class="p-del" data-i="${originalIndex}">🗑️</button>`:''}
           </div>
           <div class="p-nums">${p.nums.map(n=>`<div class="p-num ${G.drawn.includes(n)?'matched':''}">${G.drawn.includes(n)?'✓':n}</div>`).join('')}</div>
-          <div class="p-progress">
-            <div class="p-progress-text">Progreso <strong>${p.mt}/5</strong></div>
-            <div class="p-bar"><div class="p-bar-fill" style="width:${(p.mt/CFG.N)*100}%"></div></div>
-          </div>
         `;
         g.appendChild(c);
       });
