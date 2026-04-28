@@ -75,9 +75,8 @@
     .players-grid::-webkit-scrollbar { width: 4px; }
     .players-grid::-webkit-scrollbar-thumb { background: #2d2d5e; border-radius: 4px; }
     
-    /* === TARJETAS DE JUGADORES - FONDO BLANCO === */
     .p-card { 
-      background: #ffffff; /* FONDO BLANCO PC Y MÓVIL */
+      background: #ffffff;
       border: 2px solid #3d3d6e;
       border-radius: 10px; 
       padding: 8px 6px; 
@@ -106,7 +105,7 @@
     .p-name { 
       font-size: 0.7rem; 
       font-weight: 700; 
-      color: #0a0a1a; /* Texto oscuro sobre fondo blanco */
+      color: #0a0a1a;
       flex: 1; 
       white-space: nowrap; 
       overflow: hidden; 
@@ -189,7 +188,6 @@
     .config-box input { width:100%; padding:10px; border-radius:8px; border:1px solid #2d2d5e; background:#0d0d2b; color:#fff; margin-bottom:10px; font-size:0.9rem; }
     .config-box button { background:linear-gradient(135deg,#7b2ff7,#00d4ff); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; width:100%; }
 
-    /* === MÓVIL - NÚMEROS GRANDES === */
     @media (max-width: 900px) {
       html, body { padding-bottom: 0; }
       .main-container { flex-direction: column; }
@@ -225,6 +223,15 @@
         margin-bottom: 4px; 
         background: #ffffff;
         border: 2px solid #3d3d6e;
+      }
+      .p-card.highlight-scroll {
+        border: 3px solid #ffd700;
+        animation: highlightPulse 2s ease-out;
+      }
+      @keyframes highlightPulse {
+        0% { box-shadow: 0 0 0 rgba(255,215,0,0); transform: scale(1); }
+        50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); transform: scale(1.05); }
+        100% { box-shadow: 0 0 0 rgba(255,215,0,0); transform: scale(1); }
       }
       .p-name { font-size: 0.75rem; font-weight: 800; color: #0a0a1a; }
       .p-num { 
@@ -410,7 +417,7 @@
     const CFG = { N:5, M:90, INTERVAL:3500, FEE:4000, JP:10000, INC:10000, CA:2, MIN:2, MAX:30 };
     let G = { players:[], drawn:[], avail:[], autoIv:null, running:false, jackpot:CFG.JP, gameStarted:false, round: 1 };
 
-    // === GUARDAR ESTADO ===
+    // === GUARDAR/CARGAR ESTADO EN LOCALSTORAGE ===
     function saveGameState() {
       const state = { round: G.round, jackpot: G.jackpot, drawn: G.drawn };
       localStorage.setItem('bingo_game_state', JSON.stringify(state));
@@ -447,7 +454,12 @@
 
     const rGrid = () => {
       const g = document.getElementById('pGrid'); g.innerHTML = '';
-      G.players.forEach((p,i) => {
+      
+      // Ordenar jugadores: primero los que tienen más progreso
+      const sortedPlayers = [...G.players].sort((a, b) => b.mt - a.mt);
+      
+      sortedPlayers.forEach((p, idx) => {
+        const originalIndex = G.players.indexOf(p);
         const c = document.createElement('div');
         let cardClass = 'p-card';
         if(p.win) cardClass += ' winner';
@@ -457,7 +469,7 @@
         c.innerHTML = `
           <div class="p-header">
             <span class="p-name">${p.name}${p.ca?'<span class="p-crown">👑</span>':''}</span>
-            ${!G.gameStarted?`<button class="p-del" data-i="${i}">🗑️</button>`:''}
+            ${!G.gameStarted?`<button class="p-del" data-i="${originalIndex}">🗑️</button>`:''}
           </div>
           <div class="p-nums">${p.nums.map(n=>`<div class="p-num ${G.drawn.includes(n)?'matched':''}">${G.drawn.includes(n)?'✓':n}</div>`).join('')}</div>
           <div class="p-progress">
@@ -469,6 +481,26 @@
       });
       document.getElementById('pCount').textContent = G.players.length;
       if(!G.gameStarted) { g.querySelectorAll('.p-del').forEach(b => b.onclick = e => { G.players.splice(parseInt(e.target.dataset.i),1); rGrid(); }); }
+    };
+
+    // Auto-scroll a jugadores que acertaron (solo móvil)
+    const scrollToWinners = () => {
+      if(window.innerWidth <= 900) {
+        setTimeout(() => {
+          const winners = document.querySelectorAll('.p-num.matched');
+          if(winners.length > 0) {
+            const lastWinner = winners[winners.length - 1];
+            const card = lastWinner.closest('.p-card');
+            if(card) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              card.classList.add('highlight-scroll');
+              setTimeout(() => {
+                card.classList.remove('highlight-scroll');
+              }, 3000);
+            }
+          }
+        }, 100);
+      }
     };
 
     const rMaster = (lastNum) => {
@@ -652,6 +684,7 @@
       document.getElementById('drawCount').textContent = G.drawn.length;
       G.players.forEach(p => { if(p.nums.includes(num) && !p.win) { p.mt++; if(p.mt>=CFG.N) p.win=true; } });
       rGrid();
+      scrollToWinners(); // Auto-scroll en móvil
       const winner = G.players.find(p=>p.win);
       if(winner) { G.running=false; clearInterval(G.autoIv); setTimeout(()=>endGame(winner),800); }
       else if(G.avail.length===0) endGame(null);
