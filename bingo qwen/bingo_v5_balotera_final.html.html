@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>🎰 Bingo Spress Líneas - ONLINE</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100vh; overflow: hidden; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a1a; color: #fff; }
+    .header { background: linear-gradient(135deg, #0d0d2b, #1a1a3e); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d2d5e; flex-shrink: 0; }
+    .header h1 { font-size: 1.3rem; font-weight: 800; background: linear-gradient(90deg, #00d4ff, #7b2ff7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-info { display: flex; gap: 15px; align-items: center; }
+    .header-info .label { font-size: 0.6rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .header-info .value { font-size: 1.1rem; font-weight: 800; color: #00d4ff; text-shadow: 0 0 10px rgba(0,212,255,0.5); }
+    .header-info .value.gold { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+    .btn-start { background: linear-gradient(135deg, #7b2ff7, #00d4ff); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 15px rgba(123,47,247,0.4); transition: all 0.3s; flex-shrink: 0; }
+    .btn-start:active { transform: scale(0.95); }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+    .main-container { display: flex; height: calc(100vh - 60px); overflow: hidden; }
+    .left-panel { width: 280px; background: #111128; border-right: 2px solid #2d2d5e; display: flex; flex-direction: column; align-items: center; padding: 15px; gap: 15px; overflow-y: auto; flex-shrink: 0; }
+    
+    /* === BALOTERA MEJORADA Y VISIBLE === */
+    .ball-section { text-align: center; position: relative; }
+    .ball-label { font-size: 0.75rem; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; transition: all 0.3s; }
+    .machine-container { transition: all 0.3s ease; position: relative; }
+    .machine-container.sorting { animation: shake 0.4s infinite; transform: scale(1.1); }
+    .machine-container.sorting .ball-label { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.8); }
+    .machine-container.sorting .main-ball-container { border: 3px solid #ffd700; box-shadow: 0 0 35px rgba(255,215,0,0.7), inset 0 0 20px rgba(255,215,0,0.3); }
+    .machine-container.sorting .dot { animation: bounce 0.3s infinite alternate; }
+    .machine-container.sorting .dot:nth-child(2) { animation-delay: 0.1s; }
+    .machine-container.sorting .dot:nth-child(3) { animation-delay: 0.2s; }
+    .machine-container.sorting .dot:nth-child(4) { animation-delay: 0.15s; }
+    
+    @keyframes shake { 0%,100%{transform:translateX(0) scale(1.1)} 25%{transform:translateX(-6px) scale(1.1)} 75%{transform:translateX(6px) scale(1.1)} }
+    @keyframes bounce { 0%{transform:translate(0,0)} 100%{transform:translate(var(--tx, 8px), var(--ty, -8px))} }
+    
+    .main-ball-container { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #9b4dff, #4a00e0); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; color: white; box-shadow: 0 0 30px rgba(155,77,255,0.5), inset 0 -5px 15px rgba(0,0,0,0.3); position: relative; animation: ballGlow 2s ease-in-out infinite; transition: all 0.3s; border: 2px solid transparent; }
+    @keyframes ballGlow { 0%,100%{box-shadow:0 0 30px rgba(155,77,255,0.5)} 50%{box-shadow:0 0 50px rgba(155,77,255,0.8)} }
+    .main-ball-container .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #00d4ff; box-shadow: 0 0 6px #00d4ff; --tx: 0px; --ty: 0px; }
+    .main-ball-container .dot:nth-child(1) { top: 20px; left: 25px; --tx: -10px; --ty: -8px; }
+    .main-ball-container .dot:nth-child(2) { top: 25px; right: 20px; --tx: 12px; --ty: -6px; background: #ff6b6b; box-shadow: 0 0 6px #ff6b6b; }
+    .main-ball-container .dot:nth-child(3) { bottom: 30px; left: 18px; --tx: -8px; --ty: 10px; background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    .main-ball-container .dot:nth-child(4) { bottom: 25px; right: 25px; --tx: 10px; --ty: 8px; background: #ffd700; box-shadow: 0 0 6px #ffd700; }
+    
+    .master-board { background: #1a1a3e; border-radius: 12px; padding: 10px; width: 100%; }
+    .master-board h3 { font-size: 0.65rem; color: #888; margin-bottom: 8px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+    .master-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+    .m-num { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: 600; border-radius: 3px; background: #0d0d2b; color: #444; transition: all 0.3s; }
+    .m-num.drawn { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; box-shadow: 0 0 8px rgba(255,107,107,0.5); }
+    .m-num.highlight { animation: numPop 0.5s ease-out; }
+    @keyframes numPop { 0% { transform: scale(1.5); background: #00d4ff; } 100% { transform: scale(1); } }
+    .announcer-box { background: linear-gradient(135deg, #1a1a3e, #2d2d5e); border-radius: 12px; padding: 12px; display: flex; gap: 10px; align-items: center; width: 100%; }
+    .announcer-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #7b2ff7, #00d4ff); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .announcer-text { font-size: 0.75rem; color: #ccc; line-height: 1.3; }
+    .announcer-text strong { color: #00d4ff; }
+    .btn-announce { background: linear-gradient(135deg, #7b2ff7, #00d4ff); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 0.65rem; font-weight: 700; cursor: pointer; margin-top: 5px; }
+    .controls-box { background: #1a1a3e; border-radius: 12px; padding: 12px; width: 100%; }
+    .controls-box h3 { font-size: 0.65rem; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+    .add-row { display: flex; gap: 8px; }
+    .add-row input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #2d2d5e; background: #0d0d2b; color: white; font-size: 0.75rem; outline: none; }
+    .add-row input:focus { border-color: #7b2ff7; }
+    .add-row button { padding: 8px 16px; border-radius: 8px; border: none; background: linear-gradient(135deg, #7b2ff7, #00d4ff); color: white; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+    .add-note { font-size: 0.6rem; color: #666; margin-top: 5px; }
+    .btn-manual { width: 100%; padding: 10px; border-radius: 8px; border: none; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; font-weight: 700; font-size: 0.8rem; cursor: pointer; margin-top: 8px; }
+    .btn-manual:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-reset-small { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #2d2d5e; background: transparent; color: #888; font-size: 0.7rem; cursor: pointer; margin-top: 5px; }
+    .draw-counter { text-align: center; background: #1a1a3e; border-radius: 12px; padding: 10px; width: 100%; }
+    .draw-counter .label { font-size: 0.6rem; color: #666; text-transform: uppercase; }
+    .draw-counter .count { font-size: 1.8rem; font-weight: 900; color: #00d4ff; }
+    .draw-counter .count span { color: #444; font-size: 1rem; }
+    .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0a0a1a; }
+    .players-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #111128; border-bottom: 1px solid #2d2d5e; flex-shrink: 0; }
+    .players-header .title { font-size: 0.85rem; font-weight: 700; color: #ccc; }
+    .players-header .title span { color: #00d4ff; }
+    .players-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px; overflow-y: auto; flex: 1; }
+    .players-grid::-webkit-scrollbar { width: 4px; }
+    .players-grid::-webkit-scrollbar-thumb { background: #2d2d5e; border-radius: 4px; }
+    .p-card { background: #141432; border: 2px solid #2d2d5e; border-radius: 10px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.3s; position: relative; }
+    .p-card.winner { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); animation: winPulse 1s infinite; }
+    @keyframes winPulse { 0%,100%{box-shadow:0 0 15px rgba(255,215,0,0.3)} 50%{box-shadow:0 0 25px rgba(255,215,0,0.6)} }
+    .p-card.cand { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+    .p-card.near-win { border-color: #ff6b6b; box-shadow: 0 0 15px rgba(255,107,107,0.2); }
+    .p-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .p-name { font-size: 0.7rem; font-weight: 700; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-crown { font-size: 0.8rem; margin-left: 3px; }
+    .p-del { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 0 3px; opacity: 0.5; transition: opacity 0.2s; }
+    .p-del:hover { opacity: 1; }
+    .p-nums { display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap; }
+    .p-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; background: #1a1a3e; color: #666; border: 1px solid #2d2d5e; transition: all 0.3s; }
+    .p-num.matched { background: linear-gradient(135deg, #00d4ff, #00a8cc); color: white; border-color: transparent; box-shadow: 0 0 8px rgba(0,212,255,0.4); transform: scale(1.1); }
+    .p-progress { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .p-progress-text { font-size: 0.55rem; color: #666; }
+    .p-progress-text strong { color: #00d4ff; }
+    .p-bar { width: 100%; height: 4px; background: #0d0d2b; border-radius: 2px; overflow: hidden; }
+    .p-bar-fill { height: 100%; background: linear-gradient(90deg, #7b2ff7, #00d4ff); border-radius: 2px; transition: width 0.4s; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal.act { display: flex; }
+    .m-box { background: linear-gradient(135deg, #1a1a3e, #2d2d5e); padding: 25px; border-radius: 16px; max-width: 380px; width: 90%; text-align: center; border: 2px solid #7b2ff7; animation: mUp 0.3s; position: relative; z-index: 10; }
+    @keyframes mUp { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
+    .m-box h2 { font-size: 1.5rem; margin-bottom: 8px; color: #00d4ff; }
+    .m-box p { color: #aaa; margin-bottom: 10px; font-size: 0.9rem; }
+    .m-prize { font-size: 2.2rem; font-weight: 900; color: #ffd700; margin: 10px 0; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+    .m-det { background: #0d0d2b; padding: 10px; border-radius: 8px; margin: 10px 0; text-align: left; font-size: 0.75rem; line-height: 1.5; color: #aaa; }
+    .m-det span { font-weight: 700; color: #22c55e; }
+    .m-btn { padding: 10px 25px; border-radius: 25px; border: none; background: linear-gradient(135deg, #7b2ff7, #00d4ff); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+    .jackpot-overlay { position: fixed; inset: 0; z-index: 150; display: none; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a0a1a, #1a1a3e); }
+    .jackpot-overlay.active { display: flex; }
+    .jackpot-text { font-size: 3rem; font-weight: 900; background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 30px rgba(255,215,0,0.5); animation: jackpotPulse 1s ease-in-out infinite; margin-bottom: 10px; }
+    @keyframes jackpotPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    .jackpot-winner { font-size: 2rem; font-weight: 800; color: #00d4ff; margin-bottom: 15px; animation: winnerGlow 2s ease-in-out infinite; }
+    @keyframes winnerGlow { 0%,100%{text-shadow:0 0 20px rgba(0,212,255,0.5)} 50%{text-shadow:0 0 40px rgba(0,212,255,1),0 0 60px rgba(0,212,255,0.5)} }
+    .jackpot-amount { font-size: 3.5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.8); margin-bottom: 20px; }
+    .jackpot-sub { font-size: 1.1rem; color: #aaa; margin-bottom: 30px; }
+    .jackpot-stars { position: absolute; font-size: 2rem; animation: starFloat 2s ease-in-out infinite; }
+    @keyframes starFloat { 0%,100%{transform:translateY(0) rotate(0deg);opacity:0.8} 50%{transform:translateY(-20px) rotate(180deg);opacity:1} }
+    .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 140; overflow: hidden; }
+    .confetti { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; }
+    @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+    .modal-grows .m-box { border-color: #22c55e; }
+    .modal-grows .m-box h2 { color: #22c55e; }
+    .modal-grows .m-prize { color: #22c55e; text-shadow: 0 0 20px rgba(34,197,94,0.5); }
+    #preOverlay { position: fixed; inset: 0; z-index: 200; background: linear-gradient(135deg, #0a0a1a, #1a1a3e); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+    #preOverlay.active { display: flex; }
+    .pre-title { font-size: 1.5rem; font-weight: 800; background: linear-gradient(90deg, #00d4ff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .pre-sub { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
+    .roulette-container { background: rgba(255,255,255,0.05); border: 3px solid #ffd700; border-radius: 20px; padding: 25px 20px; margin-bottom: 20px; box-shadow: 0 0 40px rgba(255,215,0,0.3); animation: borderGlow 2s ease-in-out infinite; max-width: 90%; }
+    @keyframes borderGlow { 0%,100%{box-shadow:0 0 30px rgba(255,215,0,0.3)} 50%{box-shadow:0 0 50px rgba(255,215,0,0.6)} }
+    .roulette-names { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .roulette-name { background: linear-gradient(135deg, #1a1a3e, #2d2d5e); padding: 8px 14px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #ccc; border: 1px solid #2d2d5e; transition: all 0.3s; }
+    .roulette-name.active { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; transform: scale(1.15); border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+    .roulette-name.eliminated { opacity: 0.2; transform: scale(0.8); }
+    .pre-msg { color: #ccc; font-size: 1rem; margin-top: 15px; font-weight: 600; }
+    .pre-cd { font-size: 4rem; font-weight: 900; color: #ffd700; animation: cdPulse 0.8s infinite; }
+    @keyframes cdPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+    /* CONFIG MODAL */
+    #configModal { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; display:none; align-items:center; justify-content:center; }
+    #configModal.act { display:flex; }
+    .config-box { background:#1a1a3e; padding:25px; border-radius:16px; text-align:center; border:2px solid #7b2ff7; max-width:320px; width:90%; }
+    .config-box h3 { color:#00d4ff; margin-bottom:10px; }
+    .config-box input { width:100%; padding:10px; border-radius:8px; border:1px solid #2d2d5e; background:#0d0d2b; color:#fff; margin-bottom:10px; font-size:0.9rem; }
+    .config-box button { background:linear-gradient(135deg,#7b2ff7,#00d4ff); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; width:100%; }
+
+    @media (max-width: 900px) {
+      .main-container { flex-direction: column; }
+      .left-panel { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 8px; gap: 8px; border-right: none; border-bottom: 2px solid #2d2d5e; max-height: 180px; overflow-y: auto; }
+      .ball-section { order: 1; flex: 0 0 auto; }
+      .main-ball-container { width: 80px; height: 80px; font-size: 1.8rem; }
+      .ball-label { font-size: 0.6rem; margin-bottom: 5px; }
+      .master-board { order: 2; flex: 1; min-width: 150px; padding: 6px; }
+      .master-grid { grid-template-columns: repeat(10, 1fr); gap: 1px; }
+      .m-num { font-size: 0.5rem; }
+      .draw-counter { order: 3; flex: 0 0 auto; padding: 6px 10px; min-width: 60px; }
+      .draw-counter .count { font-size: 1.3rem; }
+      .controls-box { order: 4; flex: 1; min-width: 150px; padding: 8px; }
+      .controls-box h3 { margin-bottom: 5px; }
+      .announcer-box { order: 5; width: 100%; padding: 8px; }
+      .players-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px; }
+      .p-card { padding: 6px 5px; border-radius: 8px; gap: 4px; }
+      .p-name { font-size: 0.65rem; }
+      .p-num { width: 22px; height: 22px; font-size: 0.55rem; }
+      .p-progress-text { font-size: 0.5rem; }
+      .p-bar { height: 3px; }
+      .players-header { padding: 8px 10px; }
+      .players-header .title { font-size: 0.75rem; }
+      .btn-start { padding: 8px 15px; font-size: 0.75rem; }
+      .header h1 { font-size: 1rem; }
+      .header-info .value { font-size: 0.9rem; }
+      .header-info .label { font-size: 0.5rem; }
+      .jackpot-text { font-size: 2rem; }
+      .jackpot-winner { font-size: 1.5rem; }
+      .jackpot-amount { font-size: 2.5rem; }
+      .jackpot-sub { font-size: 0.9rem; }
+    }
+    @media (max-width: 500px) {
+      .players-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 6px; }
+      .p-num { width: 20px; height: 20px; font-size: 0.5rem; }
+      .p-name { font-size: 0.6rem; }
+      .left-panel { max-height: 160px; }
+      .main-ball-container { width: 70px; height: 70px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- MODAL DE CONFIGURACIÓN (SOLO APARECE LA PRIMERA VEZ) -->
+  <div id="configModal">
+    <div class="config-box">
+      <h3>⚙️ Configuración Inicial</h3>
+      <p style="color:#aaa; font-size:0.85rem; margin-bottom:10px;">Pega aquí tu URL de Google Apps Script (la que termina en /exec). Solo lo harás esta vez.</p>
+      <input type="text" id="configInput" placeholder="https://script.google.com/.../exec">
+      <button onclick="saveConfig()">✅ GUARDAR Y ENTRAR</button>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>BINGO SPRESS LÍNEAS</h1>
+    <div class="header-info">
+      <div>
+        <div class="label">ACUMULADO</div>
+        <div class="value gold">$<span id="jpDisp">10.000</span></div>
+      </div>
+      <div>
+        <div class="label">RONDA</div>
+        <div class="value">#<span id="roundCount">1</span></div>
+      </div>
+    </div>
+    <button class="btn-start" id="btnAuto">▶ INICIAR RONDA</button>
+  </div>
+
+  <div class="main-container">
+    <div class="left-panel">
+      <div class="ball-section">
+        <div class="machine-container" id="machineContainer">
+          <div class="ball-label">SORTEANDO NÚMERO...</div>
+          <div class="main-ball-container" id="mainBall">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            ?
+          </div>
+        </div>
+      </div>
+
+      <div class="master-board">
+        <h3>📋 TABLERO MAESTRO (1-90)</h3>
+        <div class="master-grid" id="masterGrid"></div>
+      </div>
+
+      <div class="draw-counter">
+        <div class="label">BOLAS SORTEADAS</div>
+        <div class="count"><span id="drawCount">0</span><span>/90</span></div>
+      </div>
+
+      <div class="controls-box">
+        <h3>AGREGAR JUGADOR</h3>
+        <div class="add-row">
+          <input type="text" id="pName" placeholder="Nombre del jugador" maxlength="16">
+          <button id="addBtn">AGREGAR</button>
+        </div>
+        <div class="add-note" id="addNote">Se pueden agregar jugadores antes de iniciar</div>
+        <button class="btn-manual" id="btnManual">🎱 SORTEAR MANUAL</button>
+        <button class="btn-reset-small" id="btnReset">🔄 REINICIAR</button>
+      </div>
+
+      <div class="announcer-box">
+        <div class="announcer-avatar">🎤</div>
+        <div>
+          <div class="announcer-text" id="announcerText">
+            <strong>"¡Bienvenidos al Bingo Spress!"</strong><br>
+            Presiona Iniciar para comenzar
+          </div>
+          <button class="btn-announce" id="btnAnnounce">🔊 ESCUCHAR LOCUTOR</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="players-header">
+        <div class="title">Jugadores (<span id="pCount">0</span>)</div>
+      </div>
+      <div class="players-grid" id="pGrid"></div>
+    </div>
+  </div>
+
+  <div class="jackpot-overlay" id="jackpotOverlay">
+    <div class="confetti-container" id="confettiContainer"></div>
+    <div class="jackpot-stars" style="top:20%;left:10%;">⭐</div>
+    <div class="jackpot-stars" style="top:30%;right:15%;animation-delay:0.3s;">✨</div>
+    <div class="jackpot-stars" style="top:60%;left:20%;animation-delay:0.6s;">🌟</div>
+    <div class="jackpot-stars" style="top:70%;right:10%;animation-delay:0.9s;">⭐</div>
+    <div class="jackpot-stars" style="top:15%;right:25%;animation-delay:1.2s;">✨</div>
+    <div class="jackpot-text">🎉 ¡JACKPOT! 🎉</div>
+    <div class="jackpot-winner" id="jackpotWinnerName">---</div>
+    <div class="jackpot-amount" id="jackpotAmount">$10.000</div>
+    <div class="jackpot-sub">¡Ha ganado el acumulado!</div>
+  </div>
+
+  <div id="preOverlay">
+    <div class="pre-title">🎯 SORTEO DE CANDIDATOS</div>
+    <div class="pre-sub">Eligiendo quiénes competirán por el acumulado</div>
+    <div class="roulette-container" id="rouletteContainer">
+      <div class="roulette-names" id="rouletteNames"></div>
+      <div class="pre-msg" id="preMsg">🎲 Mezclando jugadores...</div>
+    </div>
+    <div class="pre-cd" id="preCd" style="display:none">3</div>
+  </div>
+
+  <div class="modal" id="winModal">
+    <div class="m-box">
+      <h2 id="mTitle">🏆 ¡BINGO!</h2>
+      <p id="mMsg">Un jugador completó sus 5 números</p>
+      <div class="m-prize" id="mPrize">$0</div>
+      <div class="m-det" id="mDet"></div>
+      <button class="m-btn" id="mBtn">🔄 NUEVA PARTIDA</button>
+    </div>
+  </div>
+
+  <script>
+    // === SISTEMA DE CONFIGURACIÓN AUTOMÁTICA (NUNCA MÁS EDITARÁS EL CÓDIGO) ===
+    let SHEETS_API_URL = localStorage.getItem('bingo_sheets_url') || '';
+    
+    function saveConfig() {
+      const input = document.getElementById('configInput').value.trim();
+      if(!input.includes('script.google.com')) {
+        alert('⚠️ La URL debe ser de Google Apps Script (termina en /exec)');
+        return;
+      }
+      localStorage.setItem('bingo_sheets_url', input);
+      SHEETS_API_URL = input;
+      document.getElementById('configModal').classList.remove('act');
+      init();
+    }
+
+    if(!SHEETS_API_URL) {
+      document.getElementById('configModal').classList.add('act');
+    }
+
+    const CFG = { N:5, M:90, INTERVAL:3500, FEE:4000, JP:10000, INC:10000, CA:2, MIN:2, MAX:30 };
+    let G = { players:[], drawn:[], avail:[], autoIv:null, running:false, jackpot:CFG.JP, gameStarted:false, round: 1 };
+
+    let ac;
+    const iA = () => { if(!ac) ac = new(window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended') ac.resume(); };
+    const sndMix = () => { if(!ac)return; const o=ac.createOscillator(),g=ac.createGain(); o.type='sine'; o.frequency.value=300+Math.random()*100; g.gain.setValueAtTime(0.06,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.05); o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.05); };
+    const sndPop = () => { if(!ac)return; const o=ac.createOscillator(),g=ac.createGain(); o.type='sine'; o.frequency.setValueAtTime(600,ac.currentTime); o.frequency.exponentialRampToValueAtTime(250,ac.currentTime+0.12); g.gain.setValueAtTime(0,ac.currentTime); g.gain.linearRampToValueAtTime(0.25,ac.currentTime+0.02); g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.12); o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.12); };
+    const sndWin = () => { if(!ac)return; [523,659,784,1047].forEach((f,i)=>setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.15);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.15);},i*100)); };
+    const sndJackpot = () => { if(!ac)return; [523,659,784,1047,1318].forEach((f,i)=>setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.2);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.2);},i*120)); };
+    const sndEliminate = () => { if(!ac)return; const o=ac.createOscillator(),g=ac.createGain(); o.type='triangle'; o.frequency.value=200; g.gain.setValueAtTime(0.08,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.15); o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.15); };
+    const sndGrows = () => { if(!ac)return; [400,500,600].forEach((f,i)=>setTimeout(()=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ac.currentTime+0.1);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.1);},i*80)); };
+
+    const fmt = n => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(n).replace('$','$');
+    const rn = (c,m) => { const s=new Set(); while(s.size<c) s.add(Math.floor(Math.random()*m)+1); return Array.from(s).sort((a,b)=>a-b); };
+    const mkP = (name) => ({ name, nums:rn(CFG.N,CFG.M), mt:0, win:false, ca:false });
+
+    const rGrid = () => {
+      const g = document.getElementById('pGrid'); g.innerHTML = '';
+      G.players.forEach((p,i) => {
+        const c = document.createElement('div');
+        let cardClass = 'p-card';
+        if(p.win) cardClass += ' winner';
+        else if(p.ca) cardClass += ' cand';
+        else if(p.mt >= 4) cardClass += ' near-win';
+        c.className = cardClass;
+        c.innerHTML = `
+          <div class="p-header">
+            <span class="p-name">${p.name}${p.ca?'<span class="p-crown">👑</span>':''}</span>
+            ${!G.gameStarted?`<button class="p-del" data-i="${i}">🗑️</button>`:''}
+          </div>
+          <div class="p-nums">${p.nums.map(n=>`<div class="p-num ${G.drawn.includes(n)?'matched':''}">${G.drawn.includes(n)?'✓':n}</div>`).join('')}</div>
+          <div class="p-progress">
+            <div class="p-progress-text">Progreso <strong>${p.mt}/5</strong></div>
+            <div class="p-bar"><div class="p-bar-fill" style="width:${(p.mt/CFG.N)*100}%"></div></div>
+          </div>
+        `;
+        g.appendChild(c);
+      });
+      document.getElementById('pCount').textContent = G.players.length;
+      if(!G.gameStarted) { g.querySelectorAll('.p-del').forEach(b => b.onclick = e => { G.players.splice(parseInt(e.target.dataset.i),1); rGrid(); }); }
+    };
+
+    const rMaster = (lastNum) => {
+      const g = document.getElementById('masterGrid'); g.innerHTML = '';
+      for(let i=1;i<=CFG.M;i++) { 
+        const c=document.createElement('div'); 
+        c.className='m-num'+(G.drawn.includes(i)?' drawn':''); 
+        if(i === lastNum) c.classList.add('highlight');
+        c.textContent=i; 
+        g.appendChild(c); 
+      }
+    };
+
+    const createConfetti = () => {
+      const container = document.getElementById('confettiContainer');
+      container.innerHTML = '';
+      const colors = ['#ffd700','#ff6b6b','#00d4ff','#22c55e','#7b2ff7','#ff9800','#ec4899'];
+      for(let i=0; i<100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random()*100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random()*colors.length)];
+        confetti.style.animationDuration = (2 + Math.random()*3) + 's';
+        confetti.style.animationDelay = Math.random()*2 + 's';
+        confetti.style.width = (5 + Math.random()*10) + 'px';
+        confetti.style.height = (5 + Math.random()*10) + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        container.appendChild(confetti);
+      }
+    };
+
+    // === ANIMACIÓN DE BALOTERA VISIBLE ===
+    const mixBalls = async () => {
+      const container = document.getElementById('machineContainer');
+      container.classList.add('sorting');
+      const iv = setInterval(sndMix, 120);
+      await new Promise(r => setTimeout(r, 1500));
+      clearInterval(iv);
+      container.classList.remove('sorting');
+    };
+
+    const showJackpotAnimation = async (winner) => {
+      const overlay = document.getElementById('jackpotOverlay');
+      document.getElementById('jackpotWinnerName').textContent = `🏆 ${winner.name} 🏆`;
+      document.getElementById('jackpotAmount').textContent = fmt(G.jackpot);
+      overlay.classList.add('active');
+      createConfetti();
+      sndJackpot();
+      if('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        await new Promise(r => setTimeout(r, 1500));
+        const u1 = new SpeechSynthesisUtterance(`¡Felicidades a ${winner.name}!`);
+        u1.lang = 'es-ES'; u1.rate = 0.9;
+        await new Promise(r => { speechSynthesis.speak(u1); u1.onend = r; });
+        await new Promise(r => setTimeout(r, 500));
+        const u2 = new SpeechSynthesisUtterance(`¡Ha ganado el acumulado de ${Number(G.jackpot)} pesos!`);
+        u2.lang = 'es-ES'; u2.rate = 0.85;
+        await new Promise(r => { speechSynthesis.speak(u2); u2.onend = r; });
+        await new Promise(r => setTimeout(r, 500));
+        speechSynthesis.speak(new SpeechSynthesisUtterance(`¡Increíble! ${winner.name} es el nuevo campeón!`));
+      }
+      await new Promise(r => setTimeout(r, 5000));
+      overlay.classList.remove('active');
+    };
+
+    const showGrowsAnimation = async (winner) => {
+      document.getElementById('winModal').classList.add('modal-grows');
+      if('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        await new Promise(r => setTimeout(r, 500));
+        const u1 = new SpeechSynthesisUtterance(`¡Felicidades a ${winner.name}! Ha ganado esta ronda.`);
+        u1.lang = 'es-ES'; u1.rate = 0.9;
+        await new Promise(r => { speechSynthesis.speak(u1); u1.onend = r; });
+        await new Promise(r => setTimeout(r, 500));
+        speechSynthesis.speak(new SpeechSynthesisUtterance(`El acumulado crece a ${Number(G.jackpot)} pesos. ¡Sigue intentando!`));
+      }
+      sndGrows();
+    };
+
+    const preRound = async () => {
+      const overlay = document.getElementById('preOverlay');
+      const rouletteNames = document.getElementById('rouletteNames');
+      const preMsg = document.getElementById('preMsg');
+      overlay.classList.add('active');
+      document.getElementById('preCd').style.display = 'none';
+      rouletteNames.innerHTML = '';
+      G.players.forEach(p => {
+        const span = document.createElement('div');
+        span.className = 'roulette-name';
+        span.textContent = p.name;
+        span.dataset.name = p.name;
+        rouletteNames.appendChild(span);
+      });
+      if('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        await new Promise(r => setTimeout(r, 400));
+        speechSynthesis.speak(new SpeechSynthesisUtterance(`Sorteando los candidatos para el acumulado de ${G.jackpot} pesos`));
+      }
+      preMsg.textContent = '🎲 Mezclando todos los jugadores...';
+      let shuffleInterval = setInterval(() => {
+        const names = Array.from(rouletteNames.children);
+        names.forEach(name => {
+          if(Math.random() > 0.5) {
+            name.style.opacity = '0.4';
+            name.style.transform = `scale(${0.8 + Math.random()*0.3})`;
+          } else {
+            name.style.opacity = '1';
+            name.style.transform = `scale(${1 + Math.random()*0.2})`;
+          }
+        });
+        sndMix();
+      }, 150);
+      await new Promise(r => setTimeout(r, 3000));
+      clearInterval(shuffleInterval);
+      preMsg.textContent = '🎯 Seleccionando candidatos...';
+      let candidates = [...G.players];
+      while(candidates.length > CFG.CA) {
+        const toEliminate = Math.min(Math.floor(Math.random()*2)+1, candidates.length - CFG.CA);
+        for(let i=0; i<toEliminate; i++) {
+          if(candidates.length <= CFG.CA) break;
+          const idx = Math.floor(Math.random()*candidates.length);
+          const eliminated = candidates.splice(idx, 1)[0];
+          const el = rouletteNames.querySelector(`[data-name="${eliminated.name}"]`);
+          if(el) { el.classList.add('eliminated'); sndEliminate(); }
+          await new Promise(r => setTimeout(r, 400));
+        }
+      }
+      preMsg.textContent = '👑 ¡CANDIDATOS SELECCIONADOS!';
+      candidates.forEach(c => {
+        const el = rouletteNames.querySelector(`[data-name="${c.name}"]`);
+        if(el) { el.classList.add('active'); el.style.transform = 'scale(1.2)'; }
+      });
+      G.players.forEach(p => p.ca = candidates.includes(p));
+      if('speechSynthesis' in window) {
+        await new Promise(r => setTimeout(r, 500));
+        speechSynthesis.speak(new SpeechSynthesisUtterance(`¡${candidates.map(c=>c.name).join(' y ')} van por el acumulado!`));
+      }
+      sndWin();
+      await new Promise(r => setTimeout(r, 2000));
+      const cd = document.getElementById('preCd');
+      cd.style.display = 'block';
+      for(let i=3; i>0; i--) { cd.textContent = i; sndMix(); await new Promise(r => setTimeout(r, 800)); }
+      cd.textContent = '¡YA!'; sndWin();
+      await new Promise(r => setTimeout(r, 500));
+      overlay.classList.remove('active');
+      startGame();
+    };
+
+    const startGame = () => {
+      G.gameStarted = true;
+      G.running = true;
+      G.avail = Array.from({length:CFG.M},(_,i)=>i+1);
+      document.getElementById('addBtn').disabled = true;
+      document.getElementById('addNote').textContent = 'No se pueden agregar jugadores durante la partida';
+      document.getElementById('btnAuto').disabled = true;
+      document.getElementById('btnManual').disabled = false;
+      rGrid();
+      rMaster();
+      drawNum();
+      G.autoIv = setInterval(drawNum, CFG.INTERVAL);
+    };
+
+    const drawNum = async () => {
+      if(!G.running || G.avail.length===0) { endGame(null); return; }
+      const num = G.avail.splice(Math.floor(Math.random()*G.avail.length),1)[0];
+      G.drawn.push(num);
+      await mixBalls();
+      sndPop();
+      const ball = document.getElementById('mainBall');
+      ball.innerHTML = `<span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>${num}`;
+      ball.style.animation = 'none'; ball.offsetHeight; ball.style.animation = 'ballGlow 2s ease-in-out infinite';
+      if('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        speechSynthesis.speak(new SpeechSynthesisUtterance(num.toString()));
+      }
+      const nearWinners = G.players.filter(p => p.mt >= 3 && !p.win);
+      const announcerText = document.getElementById('announcerText');
+      announcerText.innerHTML = nearWinners.length > 0 
+        ? `<strong>"¡Cuidado! ${nearWinners[Math.floor(Math.random()*nearWinners.length)].name} está a punto de ganar."</strong>`
+        : `<strong>"Número ${num} - ¡Sigue el juego!"</strong>`;
+      rMaster(num);
+      document.getElementById('drawCount').textContent = G.drawn.length;
+      G.players.forEach(p => { if(p.nums.includes(num) && !p.win) { p.mt++; if(p.mt>=CFG.N) p.win=true; } });
+      rGrid();
+      const winner = G.players.find(p=>p.win);
+      if(winner) { G.running=false; clearInterval(G.autoIv); setTimeout(()=>endGame(winner),800); }
+      else if(G.avail.length===0) endGame(null);
+    };
+
+    const endGame = async (winner) => {
+      clearInterval(G.autoIv); G.running=false; G.gameStarted=false;
+      const rec=G.players.length*CFG.FEE, p7=Math.floor(rec*0.7);
+      let jWon = winner && winner.ca;
+      let prize = jWon ? G.jackpot : 0;
+      G.jackpot = jWon ? CFG.JP : G.jackpot + CFG.INC;
+      document.getElementById('jpDisp').textContent = fmt(G.jackpot);
+      G.round++;
+      document.getElementById('roundCount').textContent = G.round;
+      const m=document.getElementById('winModal');
+      m.querySelector('#mTitle').textContent = jWon ? '🎉 ¡JACKPOT!' : '🏆 ¡BINGO!';
+      m.querySelector('#mMsg').textContent = jWon ? `¡${winner.name} era 👑 y ganó el acumulado!` : `¡${winner.name} ganó la ronda!`;
+      m.querySelector('#mPrize').textContent = jWon ? fmt(p7+prize) : fmt(p7);
+      m.querySelector('#mDet').innerHTML = `🎟️ ${G.players.length} • 💵 ${fmt(rec)} • 🏆 ${fmt(p7)} • 🏠 ${fmt(rec*0.3)} • 💰 ${fmt(prize)} • 📈 ${fmt(G.jackpot)}`;
+      m.classList.add('act');
+      if(winner) {
+        if(jWon) { await showJackpotAnimation(winner); m.classList.add('act'); } 
+        else { await showGrowsAnimation(winner); m.classList.add('act'); }
+        jWon ? sndJackpot() : sndWin();
+      }
+    };
+
+    const newGame = () => {
+      const m=document.getElementById('winModal');
+      m.classList.remove('act','modal-grows');
+      G.players.forEach(p=>{p.win=false;p.ca=false;p.mt=0;p.nums=rn(CFG.N,CFG.M);});
+      G.drawn=[]; G.avail=[]; G.running=false; G.gameStarted=false;
+      document.getElementById('addBtn').disabled=false;
+      document.getElementById('addNote').textContent='Se pueden agregar jugadores antes de iniciar';
+      document.getElementById('btnAuto').disabled=false;
+      document.getElementById('btnManual').disabled=false;
+      document.getElementById('mainBall').innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>?';
+      document.getElementById('drawCount').textContent = '0';
+      document.getElementById('announcerText').innerHTML = '<strong>"¡Bienvenidos al Bingo Spress!"</strong><br>Presiona Iniciar para comenzar';
+      rGrid(); rMaster();
+    };
+
+    const addP = () => {
+      const input = document.getElementById('pName');
+      const n = input.value.trim();
+      if(!n) return; 
+      if(G.players.length>=CFG.MAX) return alert('Máx 30 jugadores');
+      if(G.players.some(p=>p.name.toLowerCase()===n.toLowerCase())) return alert('Nombre duplicado');
+      G.players.push(mkP(n)); 
+      input.value=''; 
+      rGrid();
+    };
+
+    // === CONEXIÓN CON GOOGLE SHEETS (JSONP) ===
+    function syncPlayersFromSheet() {
+      if(!SHEETS_API_URL) return;
+      console.log("🔄 Sincronizando con Google Sheets...");
+      const callbackName = 'cb_' + Date.now();
+      window[callbackName] = function(data) {
+        console.log("✅ Datos recibidos:", data);
+        if(data.players && Array.isArray(data.players)) {
+          let nuevos = 0;
+          data.players.forEach(p => {
+            if(!G.players.some(ex => ex.name.toLowerCase() === p.name.toLowerCase())) {
+              G.players.push(mkP(p.name));
+              nuevos++;
+            }
+          });
+          if(nuevos > 0) { console.log(`✨ ${nuevos} jugadores agregados.`); rGrid(); }
+        }
+        delete window[callbackName];
+        document.querySelectorAll('script[src*="cb_"]').forEach(s => s.remove());
+      };
+      const script = document.createElement('script');
+      script.src = SHEETS_API_URL + '?callback=' + callbackName;
+      script.onerror = () => { console.error("❌ Error JSONP"); delete window[callbackName]; };
+      document.body.appendChild(script);
+    }
+
+    document.getElementById('addBtn').onclick = addP;
+    document.getElementById('pName').onkeypress = e => { if(e.key==='Enter') addP(); };
+    document.getElementById('btnAuto').onclick = () => {
+      iA();
+      if(!G.gameStarted){ 
+        if(G.players.length === 0) { alert('⚠️ Agrega jugadores manualmente o espera a que carguen de Google Sheets.'); return; }
+        preRound(); 
+      } else { 
+        G.avail=Array.from({length:CFG.M},(_,i)=>i+1); G.running=true; drawNum(); G.autoIv=setInterval(drawNum,CFG.INTERVAL); 
+      }
+    };
+    document.getElementById('btnManual').onclick = () => {
+      iA();
+      if(!G.running){ G.avail=Array.from({length:CFG.M},(_,i)=>i+1); G.running=true; }
+      drawNum();
+    };
+    document.getElementById('btnReset').onclick = newGame;
+    document.getElementById('mBtn').onclick = newGame;
+    document.getElementById('btnAnnounce').onclick = () => {
+      if('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById('announcerText').innerText));
+    };
+
+    setInterval(syncPlayersFromSheet, 8000);
+
+    function init() {
+      rGrid(); rMaster();
+      syncPlayersFromSheet();
+    }
+    if(SHEETS_API_URL) init();
+  </script>
+</body>
+</html>
