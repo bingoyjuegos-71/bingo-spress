@@ -185,27 +185,40 @@
         -webkit-overflow-scrolling: touch; 
         scroll-padding-bottom: 20px;
       }
-      .p-card { 
+           .p-card { 
         padding: 8px 6px; 
         border-radius: 10px; 
         gap: 6px; 
         margin-bottom: 4px; 
-        background: linear-gradient(135deg, #1a1a3e, #0d0d2b); /* Fondo más contrastado */
+        background: #ffffff; /* FONDO BLANCO */
         border: 2px solid #3d3d6e;
       }
-      .p-name { font-size: 0.75rem; font-weight: 800; }
+      .p-name { 
+        font-size: 0.75rem; 
+        font-weight: 800; 
+        color: #0a0a1a; /* Texto oscuro para contrastar con fondo blanco */
+      }
       .p-num { 
-        width: 32px; 
-        height: 32px; 
-        font-size: 0.85rem; /* NÚMEROS MÁS GRANDES */
+        width: 38px; /* MÁS GRANDE - ocupa casi todo el ancho */
+        height: 38px; 
+        font-size: 0.95rem; /* NÚMEROS BIEN GRANDES */
         font-weight: 800;
         border: 2px solid #2d2d5e;
+        background: #f0f0f5; /* Fondo claro para los números */
+        color: #0a0a1a;
       }
       .p-num.matched { 
-        transform: scale(1.15); 
-        font-size: 0.9rem;
+        transform: scale(1.2); 
+        font-size: 1.05rem;
+        background: linear-gradient(135deg, #00d4ff, #00a8cc);
+        color: white;
+        border-color: transparent;
       }
-      .p-progress-text { font-size: 0.6rem; font-weight: 700; }
+      .p-progress-text { 
+        font-size: 0.6rem; 
+        font-weight: 700; 
+        color: #333;
+      }
       .p-bar { height: 4px; }
       
       .btn-start { padding: 8px 15px; font-size: 0.75rem; }
@@ -227,10 +240,10 @@
         padding: 6px; 
         padding-bottom: 60px; 
       }
-      .p-num { 
-        width: 30px; 
-        height: 30px; 
-        font-size: 0.8rem; 
+           .p-num { 
+        width: 35px; 
+        height: 35px; 
+        font-size: 0.85rem; 
       }
       .p-name { font-size: 0.7rem; }
       .left-panel { max-height: 160px; }
@@ -734,10 +747,9 @@
 
     setInterval(syncPlayersFromSheet, 8000);
 
-    function init() {
+       function init() {
       loadGameState(); // Cargar estado guardado
-      // Siempre cargar 30 jugadores bots
-      BOTS.slice(0,30).forEach(n => G.players.push(mkP(n)));
+      // NO cargar bots - solo jugadores de Google Sheets
       rGrid(); rMaster();
       syncPlayersFromSheet();
     }
