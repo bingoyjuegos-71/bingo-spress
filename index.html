@@ -715,76 +715,48 @@
       }
     };
 
-    const newGame = () => {
+       const newGame = () => {
+      // 1. Limpiar modal y alertas
       const m=document.getElementById('winModal');
-      m.classList.remove('act','modal-grows');
-      G.players.forEach(p=>{p.win=false;p.ca=false;p.mt=0;p.nums=rn(CFG.N,CFG.M);});
-      G.drawn=[]; G.avail=[]; G.running=false; G.gameStarted=false;
-      document.getElementById('addBtn').disabled=false;
-      document.getElementById('addNote').textContent='Se pueden agregar jugadores antes de iniciar';
-      document.getElementById('btnAuto').disabled=false;
-      document.getElementById('btnManual').disabled=false;
+      if(m) m.classList.remove('act','modal-grows');
+      
+      // 2. Reiniciar variables del juego a CERO
+      G.drawn = [];
+      G.avail = [];
+      G.running = false;
+      G.gameStarted = false;
+      G.autoIv = null;
+      G.round = 1;
+      G.jackpot = CFG.JP;
+      
+      // 3. Reiniciar jugadores (nuevos números y progreso 0)
+      G.players.forEach(p => {
+        p.win = false;
+        p.ca = false;
+        p.mt = 0;
+        p.nums = rn(CFG.N, CFG.M);
+      });
+      
+      // 4. Borrar memoria guardada para que no vuelva el estado anterior
+      localStorage.removeItem('bingo_game_state');
+      
+      // 5. Actualizar interfaz visual
+      document.getElementById('jpDisp').textContent = fmt(G.jackpot);
+      document.getElementById('roundCount').textContent = G.round;
+      document.getElementById('addBtn').disabled = false;
+      document.getElementById('addNote').textContent = 'Se pueden agregar jugadores antes de iniciar';
+      document.getElementById('btnAuto').disabled = false;
+      document.getElementById('btnManual').disabled = false;
       document.getElementById('mainBall').innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>?';
       document.getElementById('drawCount').textContent = '0';
       document.getElementById('announcerText').innerHTML = '<strong>"¡Bienvenidos al Bingo Spress!"</strong><br>Presiona Iniciar para comenzar';
-      rGrid(); rMaster();
-    };
-
-    const addP = () => {
-      const input = document.getElementById('pName');
-      const n = input.value.trim();
-      if(!n) return; 
-      if(G.players.length>=CFG.MAX) return alert('Máx 30 jugadores');
-      if(G.players.some(p=>p.name.toLowerCase()===n.toLowerCase())) return alert('Nombre duplicado');
-      G.players.push(mkP(n)); 
-      input.value=''; 
+      
+      // 6. Forzar redibujado del tablero y jugadores
       rGrid();
+      rMaster();
+      
+      console.log("✅ Ronda limpiada y lista para jugar.");
     };
-
-    function syncPlayersFromSheet() {
-      if(!SHEETS_API_URL) return;
-      console.log("🔄 Sincronizando con Google Sheets...");
-      const callbackName = 'cb_' + Date.now();
-      window[callbackName] = function(data) {
-        console.log("✅ Datos recibidos:", data);
-        if(data.players && Array.isArray(data.players)) {
-          let nuevos = 0;
-          data.players.forEach(p => {
-            if(!G.players.some(ex => ex.name.toLowerCase() === p.name.toLowerCase())) {
-              G.players.push(mkP(p.name));
-              nuevos++;
-            }
-          });
-          if(nuevos > 0) { console.log(`✨ ${nuevos} jugadores agregados.`); rGrid(); }
-        }
-        delete window[callbackName];
-        document.querySelectorAll('script[src*="cb_"]').forEach(s => s.remove());
-      };
-      const script = document.createElement('script');
-      script.src = SHEETS_API_URL + '?callback=' + callbackName;
-      script.onerror = () => { console.error("❌ Error JSONP"); delete window[callbackName]; };
-      document.body.appendChild(script);
-    }
-
-    document.getElementById('addBtn').onclick = addP;
-    document.getElementById('pName').onkeypress = e => { if(e.key==='Enter') addP(); };
-    document.getElementById('btnAuto').onclick = () => {
-      iA();
-      if(!G.gameStarted){ 
-        if(G.players.length === 0) { alert('⚠️ Agrega jugadores manualmente o espera a que carguen de Google Sheets.'); return; }
-        preRound(); 
-      } else { 
-        G.avail=Array.from({length:CFG.M},(_,i)=>i+1); G.running=true; drawNum(); G.autoIv=setInterval(drawNum,CFG.INTERVAL); 
-      }
-    };
-    document.getElementById('btnManual').onclick = () => {
-      iA();
-      if(!G.running){ G.avail=Array.from({length:CFG.M},(_,i)=>i+1); G.running=true; }
-      drawNum();
-    };
-    document.getElementById('btnReset').onclick = () => {
-      // Reiniciar todo, incluyendo el estado guardado
-      localStorage.removeItem('bingo_game_state');
       G.round = 1;
       G.jackpot = CFG.JP;
       document.getElementById('jpDisp').textContent = fmt(CFG.JP);
