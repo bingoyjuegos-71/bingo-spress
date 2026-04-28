@@ -74,8 +74,10 @@
     .players-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px; overflow-y: auto; flex: 1; }
     .players-grid::-webkit-scrollbar { width: 4px; }
     .players-grid::-webkit-scrollbar-thumb { background: #2d2d5e; border-radius: 4px; }
-       .p-card { 
-      background: #ffffff; /* FONDO BLANCO EN PC Y MÓVIL */
+    
+    /* === TARJETAS DE JUGADORES - FONDO BLANCO === */
+    .p-card { 
+      background: #ffffff; /* FONDO BLANCO PC Y MÓVIL */
       border: 2px solid #3d3d6e;
       border-radius: 10px; 
       padding: 8px 6px; 
@@ -91,6 +93,7 @@
       box-shadow: 0 0 20px rgba(255,215,0,0.3); 
       animation: winPulse 1s infinite; 
     }
+    @keyframes winPulse { 0%,100%{box-shadow:0 0 15px rgba(255,215,0,0.3)} 50%{box-shadow:0 0 25px rgba(255,215,0,0.6)} }
     .p-card.cand { 
       border-color: #ffd700; 
       box-shadow: 0 0 15px rgba(255,215,0,0.2); 
@@ -100,7 +103,7 @@
       box-shadow: 0 0 15px rgba(255,107,107,0.2); 
     }
     .p-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-     .p-name { 
+    .p-name { 
       font-size: 0.7rem; 
       font-weight: 700; 
       color: #0a0a1a; /* Texto oscuro sobre fondo blanco */
@@ -122,10 +125,11 @@
       justify-content: center; 
       font-size: 0.65rem; 
       font-weight: 700; 
-      background: #f0f0f5; /* Fondo claro para números */
-      color: #0a0a1a; /* Texto oscuro */
+      background: #f0f0f5; 
+      color: #0a0a1a; 
       border: 2px solid #2d2d5e; 
-      transition: all 0.3s;   }
+      transition: all 0.3s; 
+    }
     .p-num.matched { 
       background: linear-gradient(135deg, #00d4ff, #00a8cc); 
       color: white; 
@@ -134,13 +138,8 @@
       transform: scale(1.1); 
     }
     .p-progress { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-     .p-progress-text { 
-      font-size: 0.55rem; 
-      color: #333; /* Texto oscuro */
-    }
-    .p-progress-text strong { 
-      color: #00d4ff; 
-    }
+    .p-progress-text { font-size: 0.55rem; color: #333; }
+    .p-progress-text strong { color: #00d4ff; }
     .p-bar { width: 100%; height: 4px; background: #0d0d2b; border-radius: 2px; overflow: hidden; }
     .p-bar-fill { height: 100%; background: linear-gradient(90deg, #7b2ff7, #00d4ff); border-radius: 2px; transition: width 0.4s; }
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
@@ -190,20 +189,11 @@
     .config-box input { width:100%; padding:10px; border-radius:8px; border:1px solid #2d2d5e; background:#0d0d2b; color:#fff; margin-bottom:10px; font-size:0.9rem; }
     .config-box button { background:linear-gradient(135deg,#7b2ff7,#00d4ff); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; width:100%; }
 
+    /* === MÓVIL - NÚMEROS GRANDES === */
     @media (max-width: 900px) {
       html, body { padding-bottom: 0; }
       .main-container { flex-direction: column; }
-      .left-panel { 
-        width: 100%; 
-        flex-direction: row; 
-        flex-wrap: wrap; 
-        padding: 8px; 
-        gap: 8px; 
-        border-right: none; 
-        border-bottom: 2px solid #2d2d5e; 
-        max-height: 180px; 
-        overflow-y: auto; 
-      }
+      .left-panel { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 8px; gap: 8px; border-right: none; border-bottom: 2px solid #2d2d5e; max-height: 180px; overflow-y: auto; }
       .ball-section { order: 1; flex: 0 0 auto; }
       .main-ball-container { width: 80px; height: 80px; font-size: 1.8rem; }
       .ball-label { font-size: 0.6rem; margin-bottom: 5px; }
@@ -216,15 +206,7 @@
       .controls-box h3 { margin-bottom: 5px; }
       .announcer-box { order: 5; width: 100%; padding: 8px; }
       
-      /* === MÓVIL MEJORADO - NÚMEROS MÁS GRANDES === */
-      .right-panel { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: column; 
-        overflow: hidden; 
-        background: #0a0a1a;
-        padding-bottom: 20px;
-      }
+      .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0a0a1a; padding-bottom: 20px; }
       .players-header { padding: 8px 10px; }
       .players-header .title { font-size: 0.75rem; }
       .players-grid { 
@@ -236,26 +218,22 @@
         -webkit-overflow-scrolling: touch; 
         scroll-padding-bottom: 20px;
       }
-           .p-card { 
+      .p-card { 
         padding: 8px 6px; 
         border-radius: 10px; 
         gap: 6px; 
         margin-bottom: 4px; 
-        background: #ffffff; /* FONDO BLANCO */
+        background: #ffffff;
         border: 2px solid #3d3d6e;
       }
-      .p-name { 
-        font-size: 0.75rem; 
-        font-weight: 800; 
-        color: #0a0a1a; /* Texto oscuro para contrastar con fondo blanco */
-      }
+      .p-name { font-size: 0.75rem; font-weight: 800; color: #0a0a1a; }
       .p-num { 
-        width: 38px; /* MÁS GRANDE - ocupa casi todo el ancho */
+        width: 38px; 
         height: 38px; 
-        font-size: 0.95rem; /* NÚMEROS BIEN GRANDES */
+        font-size: 0.95rem; 
         font-weight: 800;
         border: 2px solid #2d2d5e;
-        background: #f0f0f5; /* Fondo claro para los números */
+        background: #f0f0f5;
         color: #0a0a1a;
       }
       .p-num.matched { 
@@ -265,11 +243,7 @@
         color: white;
         border-color: transparent;
       }
-      .p-progress-text { 
-        font-size: 0.6rem; 
-        font-weight: 700; 
-        color: #333;
-      }
+      .p-progress-text { font-size: 0.6rem; font-weight: 700; color: #333; }
       .p-bar { height: 4px; }
       
       .btn-start { padding: 8px 15px; font-size: 0.75rem; }
@@ -291,7 +265,7 @@
         padding: 6px; 
         padding-bottom: 60px; 
       }
-           .p-num { 
+      .p-num { 
         width: 35px; 
         height: 35px; 
         font-size: 0.85rem; 
@@ -434,17 +408,11 @@
     }
 
     const CFG = { N:5, M:90, INTERVAL:3500, FEE:4000, JP:10000, INC:10000, CA:2, MIN:2, MAX:30 };
-    const BOTS = ['Carlos','Luis','Hector','Fabio','Edgar','Pedro','Raul','Ester','Viviana','Esperanza','Matilde','Tatis','Valeria','Jasmin','Clemencia','Mary','Mima','Nestor','Andres','Camilo','Sara','Johana','Cindy','Katherine','Pamela','Javier','Samuel','Kamila','Estela','Diana'];
-
     let G = { players:[], drawn:[], avail:[], autoIv:null, running:false, jackpot:CFG.JP, gameStarted:false, round: 1 };
 
-    // === GUARDAR ESTADO EN LOCALSTORAGE ===
+    // === GUARDAR ESTADO ===
     function saveGameState() {
-      const state = {
-        round: G.round,
-        jackpot: G.jackpot,
-        drawn: G.drawn
-      };
+      const state = { round: G.round, jackpot: G.jackpot, drawn: G.drawn };
       localStorage.setItem('bingo_game_state', JSON.stringify(state));
     }
 
@@ -457,12 +425,9 @@
           G.jackpot = state.jackpot || CFG.JP;
           G.drawn = state.drawn || [];
         } catch(e) {
-          G.round = 1;
-          G.jackpot = CFG.JP;
-          G.drawn = [];
+          G.round = 1; G.jackpot = CFG.JP; G.drawn = [];
         }
       }
-      // Actualizar interfaz con valores guardados
       document.getElementById('jpDisp').textContent = fmt(G.jackpot);
       document.getElementById('roundCount').textContent = G.round;
     }
@@ -701,7 +666,7 @@
       G.round++;
       document.getElementById('jpDisp').textContent = fmt(G.jackpot);
       document.getElementById('roundCount').textContent = G.round;
-      saveGameState(); // GUARDAR ESTADO
+      saveGameState();
       const m=document.getElementById('winModal');
       m.querySelector('#mTitle').textContent = jWon ? '🎉 ¡JACKPOT!' : '🏆 ¡BINGO!';
       m.querySelector('#mMsg').textContent = jWon ? `¡${winner.name} era 👑 y ganó el acumulado!` : `¡${winner.name} ganó la ronda!`;
@@ -715,54 +680,85 @@
       }
     };
 
-       const newGame = () => {
-      // 1. Limpiar modal y alertas
+    const newGame = () => {
       const m=document.getElementById('winModal');
-      if(m) m.classList.remove('act','modal-grows');
-      
-      // 2. Reiniciar variables del juego a CERO
-      G.drawn = [];
-      G.avail = [];
-      G.running = false;
-      G.gameStarted = false;
-      G.autoIv = null;
-      G.round = 1;
-      G.jackpot = CFG.JP;
-      
-      // 3. Reiniciar jugadores (nuevos números y progreso 0)
-      G.players.forEach(p => {
-        p.win = false;
-        p.ca = false;
-        p.mt = 0;
-        p.nums = rn(CFG.N, CFG.M);
-      });
-      
-      // 4. Borrar memoria guardada para que no vuelva el estado anterior
-      localStorage.removeItem('bingo_game_state');
-      
-      // 5. Actualizar interfaz visual
-      document.getElementById('jpDisp').textContent = fmt(G.jackpot);
-      document.getElementById('roundCount').textContent = G.round;
-      document.getElementById('addBtn').disabled = false;
-      document.getElementById('addNote').textContent = 'Se pueden agregar jugadores antes de iniciar';
-      document.getElementById('btnAuto').disabled = false;
-      document.getElementById('btnManual').disabled = false;
+      m.classList.remove('act','modal-grows');
+      G.players.forEach(p=>{p.win=false;p.ca=false;p.mt=0;p.nums=rn(CFG.N,CFG.M);});
+      G.drawn=[]; G.avail=[]; G.running=false; G.gameStarted=false;
+      document.getElementById('addBtn').disabled=false;
+      document.getElementById('addNote').textContent='Se pueden agregar jugadores antes de iniciar';
+      document.getElementById('btnAuto').disabled=false;
+      document.getElementById('btnManual').disabled=false;
       document.getElementById('mainBall').innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>?';
       document.getElementById('drawCount').textContent = '0';
       document.getElementById('announcerText').innerHTML = '<strong>"¡Bienvenidos al Bingo Spress!"</strong><br>Presiona Iniciar para comenzar';
-      
-      // 6. Forzar redibujado del tablero y jugadores
-      rGrid();
-      rMaster();
-      
-      console.log("✅ Ronda limpiada y lista para jugar.");
+      rGrid(); rMaster();
     };
+
+    const addP = () => {
+      const input = document.getElementById('pName');
+      const n = input.value.trim();
+      if(!n) return; 
+      if(G.players.length>=CFG.MAX) return alert('Máx 30 jugadores');
+      if(G.players.some(p=>p.name.toLowerCase()===n.toLowerCase())) return alert('Nombre duplicado');
+      G.players.push(mkP(n)); 
+      input.value=''; 
+      rGrid();
+    };
+
+    function syncPlayersFromSheet() {
+      if(!SHEETS_API_URL) return;
+      console.log("🔄 Sincronizando con Google Sheets...");
+      const callbackName = 'cb_' + Date.now();
+      window[callbackName] = function(data) {
+        console.log("✅ Datos recibidos:", data);
+        if(data.players && Array.isArray(data.players)) {
+          let nuevos = 0;
+          data.players.forEach(p => {
+            if(!G.players.some(ex => ex.name.toLowerCase() === p.name.toLowerCase())) {
+              G.players.push(mkP(p.name));
+              nuevos++;
+            }
+          });
+          if(nuevos > 0) { console.log(`✨ ${nuevos} jugadores agregados.`); rGrid(); }
+        }
+        delete window[callbackName];
+        document.querySelectorAll('script[src*="cb_"]').forEach(s => s.remove());
+      };
+      const script = document.createElement('script');
+      script.src = SHEETS_API_URL + '?callback=' + callbackName;
+      script.onerror = () => { console.error("❌ Error JSONP"); delete window[callbackName]; };
+      document.body.appendChild(script);
+    }
+
+    document.getElementById('addBtn').onclick = addP;
+    document.getElementById('pName').onkeypress = e => { if(e.key==='Enter') addP(); };
+    
+    document.getElementById('btnAuto').onclick = () => {
+      iA();
+      if(!G.gameStarted){ 
+        if(G.players.length === 0) { alert('⚠️ Agrega jugadores manualmente o espera a que carguen de Google Sheets.'); return; }
+        preRound(); 
+      } else { 
+        alert('⏸️ La ronda ya está en curso. Presiona 🔄 REINICIAR para empezar de cero.');
+      }
+    };
+    
+    document.getElementById('btnManual').onclick = () => {
+      iA();
+      if(!G.running){ G.avail=Array.from({length:CFG.M},(_,i)=>i+1); G.running=true; }
+      drawNum();
+    };
+    
+    document.getElementById('btnReset').onclick = () => {
+      localStorage.removeItem('bingo_game_state');
       G.round = 1;
       G.jackpot = CFG.JP;
       document.getElementById('jpDisp').textContent = fmt(CFG.JP);
       document.getElementById('roundCount').textContent = '1';
       newGame();
     };
+    
     document.getElementById('mBtn').onclick = newGame;
     document.getElementById('btnAnnounce').onclick = () => {
       if('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance(document.getElementById('announcerText').innerText));
@@ -770,9 +766,8 @@
 
     setInterval(syncPlayersFromSheet, 8000);
 
-       function init() {
-      loadGameState(); // Cargar estado guardado
-      // NO cargar bots - solo jugadores de Google Sheets
+    function init() {
+      loadGameState();
       rGrid(); rMaster();
       syncPlayersFromSheet();
     }
