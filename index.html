@@ -74,22 +74,73 @@
     .players-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px; overflow-y: auto; flex: 1; }
     .players-grid::-webkit-scrollbar { width: 4px; }
     .players-grid::-webkit-scrollbar-thumb { background: #2d2d5e; border-radius: 4px; }
-    .p-card { background: #141432; border: 2px solid #2d2d5e; border-radius: 10px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.3s; position: relative; }
-    .p-card.winner { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.3); animation: winPulse 1s infinite; }
-    @keyframes winPulse { 0%,100%{box-shadow:0 0 15px rgba(255,215,0,0.3)} 50%{box-shadow:0 0 25px rgba(255,215,0,0.6)} }
-    .p-card.cand { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-    .p-card.near-win { border-color: #ff6b6b; box-shadow: 0 0 15px rgba(255,107,107,0.2); }
+       .p-card { 
+      background: #ffffff; /* FONDO BLANCO EN PC Y MÓVIL */
+      border: 2px solid #3d3d6e;
+      border-radius: 10px; 
+      padding: 8px 6px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 6px; 
+      transition: all 0.3s; 
+      position: relative; 
+    }
+    .p-card.winner { 
+      border-color: #ffd700; 
+      box-shadow: 0 0 20px rgba(255,215,0,0.3); 
+      animation: winPulse 1s infinite; 
+    }
+    .p-card.cand { 
+      border-color: #ffd700; 
+      box-shadow: 0 0 15px rgba(255,215,0,0.2); 
+    }
+    .p-card.near-win { 
+      border-color: #ff6b6b; 
+      box-shadow: 0 0 15px rgba(255,107,107,0.2); 
+    }
     .p-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-    .p-name { font-size: 0.7rem; font-weight: 700; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+     .p-name { 
+      font-size: 0.7rem; 
+      font-weight: 700; 
+      color: #0a0a1a; /* Texto oscuro sobre fondo blanco */
+      flex: 1; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
     .p-crown { font-size: 0.8rem; margin-left: 3px; }
     .p-del { background: none; border: none; cursor: pointer; font-size: 0.75rem; padding: 0 3px; opacity: 0.5; transition: opacity 0.2s; }
     .p-del:hover { opacity: 1; }
     .p-nums { display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap; }
-    .p-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; background: #1a1a3e; color: #666; border: 1px solid #2d2d5e; transition: all 0.3s; }
-    .p-num.matched { background: linear-gradient(135deg, #00d4ff, #00a8cc); color: white; border-color: transparent; box-shadow: 0 0 8px rgba(0,212,255,0.4); transform: scale(1.1); }
+    .p-num { 
+      width: 26px; 
+      height: 26px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 0.65rem; 
+      font-weight: 700; 
+      background: #f0f0f5; /* Fondo claro para números */
+      color: #0a0a1a; /* Texto oscuro */
+      border: 2px solid #2d2d5e; 
+      transition: all 0.3s;   }
+    .p-num.matched { 
+      background: linear-gradient(135deg, #00d4ff, #00a8cc); 
+      color: white; 
+      border-color: transparent; 
+      box-shadow: 0 0 8px rgba(0,212,255,0.4); 
+      transform: scale(1.1); 
+    }
     .p-progress { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .p-progress-text { font-size: 0.55rem; color: #666; }
-    .p-progress-text strong { color: #00d4ff; }
+     .p-progress-text { 
+      font-size: 0.55rem; 
+      color: #333; /* Texto oscuro */
+    }
+    .p-progress-text strong { 
+      color: #00d4ff; 
+    }
     .p-bar { width: 100%; height: 4px; background: #0d0d2b; border-radius: 2px; overflow: hidden; }
     .p-bar-fill { height: 100%; background: linear-gradient(90deg, #7b2ff7, #00d4ff); border-radius: 2px; transition: width 0.4s; }
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
